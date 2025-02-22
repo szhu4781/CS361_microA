@@ -9,10 +9,10 @@ SUFFIX = {'png', 'jpg', 'jpeg', 'svg'}
 
 # Supabase credentials
 SUPABASE_URL = os.getenv("SUPABASE_URL")  # Set your Supabase URL as an environment variable
-SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")  # Set your Supabase Anon Key as an environment variable
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")  # Set your Supabase Anon Key as an environment variable
 
 # Initialize Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 # Check for allowed file format
 def file_format(filename):
