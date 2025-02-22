@@ -18,6 +18,10 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 def file_format(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in SUFFIX
 
+@app.route('/')
+def home():
+    return "Welcome to the Image Upload API!"
+
 # Endpoint to upload an image
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
