@@ -1,9 +1,9 @@
 {
-    "builds": [
-      { "src": "microserviceA.py", "use": "@vercel/python" }
-    ],
-    "routes": [
-      { "src": "/(.*)", "dest": "microserviceA.py" }
-    ]
-  }
-  
+  "version": 2,
+  "builds": [
+    { "src": "index.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "index.py" }
+  ]
+}
