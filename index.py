@@ -84,6 +84,3 @@ def remove_image():
                 return jsonify({'error': 'Failed to remove image'}), 500
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-
-def handler(event, context):
-    return app(event, context)
