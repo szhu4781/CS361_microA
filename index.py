@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify
-import os
 
 app = Flask(__name__)
 
-# In-memory storage for images (for demonstration purposes)
+# In-memory storage for images
 image_storage = {}
 
 # Upload image endpoint
@@ -13,9 +12,9 @@ def upload_image():
     image_file = request.files.get('image')
 
     if not event_id or not image_file:
-        return jsonify({"error": "event_id and image are required"}), 400
+        return jsonify({"error": "missing event_id and image"}), 404
 
-    # Save the image (in-memory for demonstration)
+    # Save the image
     image_storage[event_id] = image_file.read()
     return jsonify({"image_url": f"https://cs-361-micro-a.vercel.app/get_image?event_id={event_id}"}), 200
 
