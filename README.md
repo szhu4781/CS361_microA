@@ -14,6 +14,20 @@ Note: Accessing root URL in Vercel will return a 404 error since there's no rout
 
 To interact with the microservice, your program must send HTTP requests to the appropriate endpoints.
 
+1. Clone repository into your project folder
+   ```
+    git clone https://github.com/szhu4781/CS361_microA.git
+    cd project_folder
+   ```
+2. Install dependencies
+   ```
+    pip install -r requirements.txt
+   ```
+3. Start the app
+   ```
+    python index.py
+   ```
+
 #### Endpoints
 **Image Upload** <br>
 * Method: POST <br>
