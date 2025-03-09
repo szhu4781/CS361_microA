@@ -1,16 +1,15 @@
 from flask import Flask, request, jsonify
 import os
-from supabase import create_client, Client
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Supabase Configuration
-SUPABASE_URL = "https://jqdqxziuzgfllzhaingt.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxZHF4eml1emdmbGx6aGFpbmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAxOTUxNTAsImV4cCI6MjA1NTc3MTE1MH0.c2iwEe1UKWgn1bR-LGnAC_RK0cdjWtZ2BHHQlpLOnBI"
-BUCKET_NAME = "mybucket"
+# Local Storage Path
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")  # Store images in the "uploads" directory
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)  # Create the directory if it doesn't exist
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Upload image endpoint
 @app.route('/upload_image', methods=['POST'])
@@ -19,38 +18,40 @@ def upload_image():
     image_file = request.files.get('image')
 
     if not event_id or not image_file:
-        return jsonify({"error": "missing event_id and image"}), 404
+        return jsonify({"error": "missing event_id and image"}), 400
 
     # Secure filename
     filename = secure_filename(image_file.filename)
-    storage_path = f"{event_id}/{filename}"
+    storage_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-    # Upload to Supabase Storage
-    response = supabase.storage.from_(BUCKET_NAME).upload(storage_path, image_file)
+    # Save image locally
+    try:
+        image_file.save(storage_path)
+    except Exception as e:
+        return jsonify({"error": f"Failed to save image: {str(e)}"}), 500
 
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to upload image"}), 500
-
-    # Get public URL
-    image_url = supabase.storage.from_(BUCKET_NAME).get_public_url(storage_path)
-
-    return jsonify({"image_url": image_url}), 200
+    # Return image name for database storage
+    return jsonify({"image_name": filename}), 200
 
 # Remove image endpoint
 @app.route('/remove_image', methods=['POST'])
 def remove_image():
-    image_path = request.form.get('image_path')  # Should store this in the database
+    image_name = request.form.get('image_name')
 
-    if not image_path:
-        return jsonify({"error": "missing image_path"}), 404
+    if not image_name:
+        return jsonify({"error": "missing image_name"}), 400
 
-    # Delete from Supabase Storage
-    response = supabase.storage.from_(BUCKET_NAME).remove([image_path])
+    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
 
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to delete image"}), 500
-
-    return jsonify({"message": "Image removed successfully"}), 200
+    # Check if the file exists before deleting
+    if os.path.exists(image_path):
+        try:
+            os.remove(image_path)
+            return jsonify({"message": "Image removed successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": f"Failed to delete image: {str(e)}"}), 500
+    else:
+        return jsonify({"error": "Image not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
