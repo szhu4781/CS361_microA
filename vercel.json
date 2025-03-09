@@ -4,6 +4,8 @@
     { "src": "index.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "index.py" }
+    { "src": "/upload_image", "dest": "index.py" },
+    { "src": "/get_image", "dest": "index.py" },
+    { "src": "/remove_image", "dest": "index.py" }
   ]
 }
