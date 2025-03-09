@@ -12,6 +12,12 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Upload image endpoint
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+
+# Upload image endpoint
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     event_id = request.form.get('event_id')
@@ -22,15 +28,8 @@ def upload_image():
 
     # Secure filename
     filename = secure_filename(image_file.filename)
-    storage_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-    # Save image locally
-    try:
-        image_file.save(storage_path)
-    except Exception as e:
-        return jsonify({"error": f"Failed to save image: {str(e)}"}), 500
-
-    # Return image name for database storage
+    # Return the image name without saving it
     return jsonify({"image_name": filename}), 200
 
 # Remove image endpoint
