@@ -12,11 +12,19 @@ def upload_image():
     image_file = request.files.get('image')
 
     if not event_id or not image_file:
-        return jsonify({"error": "missing event_id and image"}), 404
+        return jsonify({"error": "missing event_id and image"}), 400
+
+    # Get the original image name (filename)
+    image_name = image_file.filename
 
     # Save the image
-    image_storage[event_id] = image_file.read()
-    return jsonify({"image_url": f"https://cs-361-micro-a.vercel.app/get_image?event_id={event_id}"}), 200
+    image_storage[event_id] = {
+        "image_name": image_name,
+        "image_data": image_file.read()
+    }
+
+    # Return the event_id and image name
+    return jsonify({"event_id": event_id, "image_name": image_name}), 200
 
 # Get image endpoint
 @app.route('/get_image', methods=['GET'])
@@ -26,7 +34,8 @@ def get_image():
     if event_id not in image_storage:
         return jsonify({"error": "Image not found"}), 404
 
-    return jsonify({"image_url": f"https://cs-361-micro-a.vercel.app/get_image?event_id={event_id}"}), 200
+    # Return the event_id and image name
+    return jsonify({"event_id": event_id, "image_name": image_storage[event_id]["image_name"]}), 200
 
 # Remove image endpoint
 @app.route('/remove_image', methods=['POST'])
